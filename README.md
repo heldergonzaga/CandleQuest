@@ -13,4 +13,4 @@ Ajudar traders e investidores a reconhecer os principais padrões de candles.
 - E muito mais!
 
 ## Como Usar
-Acesse: https://helder_gonzaga.github.io/quiCandles/
+Acesse: [https://helder_gonzaga.github.io/quiCandles/](https://heldergonzaga.github.io/CandleQuest/)
