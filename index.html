@@ -97,7 +97,6 @@
         
         .candle-wick {
             width: 2px;
-            height: 20px;
             background-color: #333;
         }
         
@@ -396,47 +395,56 @@
             }
         }
 
-        // Gerar gráfico de candle
+        // Gerar gráfico de candle - FUNÇÃO CORRIGIDA
         function generateChart(chartType) {
             chartContainer.innerHTML = '';
             
             // Criar candles baseados no tipo de padrão
             switch(chartType) {
                 case 'hammer':
-                    createCandleChart([60, 55, 40, 58], [50, 45, 35, 48], [70, 65, 45, 68]);
+                    createCandleChart([60, 55, 40, 58], [70, 65, 35, 68], [55, 50, 30, 53], [58, 53, 35, 63]);
                     break;
                 case 'engulfing_bullish':
-                    createCandleChart([50, 48, 45, 46], [55, 52, 48, 53], [45, 44, 42, 43]);
+                    createCandleChart([50, 55], [52, 60], [45, 50], [48, 58]);
                     break;
                 case 'doji':
-                    createCandleChart([50, 50, 45, 50], [50, 50, 48, 50], [55, 52, 48, 53]);
+                    createCandleChart([50, 52, 48], [55, 57, 53], [45, 47, 43], [50, 52, 48]);
                     break;
                 case 'shooting_star':
-                    createCandleChart([50, 52, 48, 49], [45, 47, 43, 44], [60, 58, 52, 55]);
+                    createCandleChart([50, 52], [60, 55], [45, 48], [49, 50]);
                     break;
                 case 'harami_bullish':
-                    createCandleChart([50, 48, 45, 46], [48, 47, 46, 47], [52, 50, 48, 49]);
+                    createCandleChart([50, 48], [55, 49], [45, 47], [46, 48]);
                     break;
                 case 'engulfing_bearish':
-                    createCandleChart([50, 52, 48, 51], [45, 47, 43, 44], [55, 53, 50, 52]);
+                    createCandleChart([50, 45], [55, 48], [48, 42], [52, 43]);
                     break;
                 case 'hanging_man':
-                    createCandleChart([60, 58, 50, 59], [55, 53, 48, 52], [65, 63, 55, 62]);
+                    createCandleChart([60, 62], [65, 67], [50, 55], [59, 61]);
                     break;
                 case 'morning_star':
-                    createCandleChart([50, 48, 45, 46], [48, 48, 47, 48], [52, 55, 50, 54]);
+                    createCandleChart([50, 48, 52], [52, 49, 58], [45, 47, 50], [46, 48, 56]);
                     break;
                 case 'evening_star':
-                    createCandleChart([50, 52, 48, 51], [52, 52, 51, 52], [48, 45, 46, 44]);
+                    createCandleChart([50, 52, 48], [55, 57, 50], [48, 50, 45], [52, 51, 46]);
                     break;
                 case 'inverted_hammer':
-                    createCandleChart([50, 48, 45, 47], [45, 44, 42, 43], [60, 55, 48, 52]);
+                    createCandleChart([50, 52], [60, 55], [45, 48], [48, 50]);
                     break;
             }
         }
 
-        // Criar gráfico de candles
-        function createCandleChart(opens, highs, lows) {
+        // Criar gráfico de candles - FUNÇÃO CORRIGIDA
+        function createCandleChart(opens, highs, lows, closes) {
+            // Encontrar valores máximos e mínimos para escalar o gráfico
+            const allValues = [...opens, ...highs, ...lows, ...closes];
+            const maxPrice = Math.max(...allValues);
+            const minPrice = Math.min(...allValues);
+            const priceRange = maxPrice - minPrice;
+            
+            // Altura máxima disponível para os candles
+            const availableHeight = 240; // Altura do container - padding
+
             for (let i = 0; i < opens.length; i++) {
                 const candle = document.createElement('div');
                 candle.className = 'candle';
@@ -444,20 +452,21 @@
                 const open = opens[i];
                 const high = highs[i];
                 const low = lows[i];
-                const close = opens[i] + (Math.random() > 0.5 ? 2 : -2); // Simular fechamento
+                const close = closes[i];
                 
-                const isBullish = close > open;
-                const bodyHeight = Math.abs(close - open);
-                const maxPrice = Math.max(open, close, high, low);
-                const minPrice = Math.min(open, close, high, low);
-                const range = maxPrice - minPrice;
+                const isBullish = close >= open;
+                
+                // Calcular alturas em pixels
+                const highPosition = ((high - minPrice) / priceRange) * availableHeight;
+                const lowPosition = ((low - minPrice) / priceRange) * availableHeight;
+                const openPosition = ((open - minPrice) / priceRange) * availableHeight;
+                const closePosition = ((close - minPrice) / priceRange) * availableHeight;
                 
                 // Wick superior
                 if (high > Math.max(open, close)) {
                     const upperWick = document.createElement('div');
                     upperWick.className = 'candle-wick';
-                    upperWick.style.height = `${((high - Math.max(open, close)) / range) * 80}%`;
-                    upperWick.style.marginBottom = '5px';
+                    upperWick.style.height = `${highPosition - Math.max(openPosition, closePosition)}px`;
                     upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                     candle.appendChild(upperWick);
                 }
@@ -465,17 +474,27 @@
                 // Corpo do candle
                 const body = document.createElement('div');
                 body.className = 'candle-body';
-                body.style.height = `${(bodyHeight / range) * 80}%`;
+                body.style.height = `${Math.abs(closePosition - openPosition)}px`;
                 body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
+                
+                // Se for bearish, inverter a ordem visual
+                if (!isBullish) {
+                    body.style.marginTop = 'auto';
+                }
+                
                 candle.appendChild(body);
                 
                 // Wick inferior
                 if (low < Math.min(open, close)) {
                     const lowerWick = document.createElement('div');
                     lowerWick.className = 'candle-wick';
-                    lowerWick.style.height = `${((Math.min(open, close) - low) / range) * 80}%`;
-                    lowerWick.style.marginTop = '5px';
+                    lowerWick.style.height = `${Math.min(openPosition, closePosition) - lowPosition}px`;
                     lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
+                    
+                    if (!isBullish) {
+                        lowerWick.style.marginTop = 'auto';
+                    }
+                    
                     candle.appendChild(lowerWick);
                 }
                 
