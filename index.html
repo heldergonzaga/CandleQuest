@@ -442,18 +442,18 @@
             }
         }
 
-        // Gerar gráfico de candle - VERSÃO SIMPLIFICADA
+        // Gerar gráfico de candle - VERSÃO CORRIGIDA
         function generateChart(chartType) {
             chartContainer.innerHTML = '';
             
             // Criar candles baseados no tipo de padrão
             switch(chartType) {
                 case 'hammer':
-                    createSingleCandle(50, 52, 35, 51, "Corpo pequeno no topo<br>Sombra inferior longa");
+                    createSingleCandle(50, 52, 30, 51, "Corpo pequeno no topo<br>Sombra inferior longa");
                     break;
                 case 'engulfing_bullish':
                     createTwoCandles(
-                        [48, 52], [50, 55], [45, 50], [46, 54],
+                        [45, 52], [48, 55], [42, 50], [43, 54],
                         ["1º: Candle de baixa", "2º: Candle de alta ENGOLINDO o anterior"]
                     );
                     break;
@@ -465,28 +465,28 @@
                     break;
                 case 'harami_bullish':
                     createTwoCandles(
-                        [46, 48], [50, 49], [42, 47], [44, 48],
+                        [42, 44], [48, 45], [38, 43], [40, 44],
                         ["1º: Candle grande de baixa", "2º: Candle pequeno DENTRO do anterior"]
                     );
                     break;
                 case 'engulfing_bearish':
                     createTwoCandles(
-                        [52, 46], [55, 48], [50, 44], [54, 45],
+                        [48, 42], [52, 45], [46, 40], [50, 41],
                         ["1º: Candle de alta", "2º: Candle de baixa ENGOLINDO o anterior"]
                     );
                     break;
                 case 'hanging_man':
-                    createSingleCandle(60, 62, 45, 59, "Corpo pequeno no topo<br>Sombra inferior longa<br>TOPO da tendência");
+                    createSingleCandle(60, 62, 40, 59, "Corpo pequeno no topo<br>Sombra inferior longa<br>TOPO da tendência");
                     break;
                 case 'morning_star':
                     createThreeCandles(
-                        [46, 48, 52], [48, 49, 56], [42, 47, 50], [44, 48, 55],
+                        [42, 44, 48], [45, 45, 52], [38, 43, 46], [40, 44, 50],
                         ["1º: Baixa forte", "2º: Indecisão (Doji)", "3º: Alta forte"]
                     );
                     break;
                 case 'evening_star':
                     createThreeCandles(
-                        [54, 56, 50], [58, 57, 52], [52, 55, 48], [56, 56, 49],
+                        [48, 50, 44], [52, 51, 46], [46, 49, 42], [50, 50, 43],
                         ["1º: Alta forte", "2º: Indecisão (Doji)", "3º: Baixa forte"]
                     );
                     break;
@@ -496,42 +496,43 @@
             }
         }
 
-        // Criar um candle único
+        // Criar um candle único - FUNÇÃO CORRIGIDA
         function createSingleCandle(open, high, low, close, description) {
             const candle = document.createElement('div');
             candle.className = 'candle';
             
             const isBullish = close > open;
-            const bodyHeight = Math.abs(close - open);
-            const maxPrice = Math.max(open, close, high, low);
-            const minPrice = Math.min(open, close, high, low);
-            const range = maxPrice - minPrice;
             
-            // Wick superior
+            // Wick superior (se houver)
             if (high > Math.max(open, close)) {
                 const upperWick = document.createElement('div');
                 upperWick.className = 'candle-wick';
-                upperWick.style.height = `${((high - Math.max(open, close)) / range) * 150}px`;
+                upperWick.style.height = '20px';
                 upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                 candle.appendChild(upperWick);
             }
             
-            // Corpo do candle
+            // Corpo do candle - SEMPRE VISÍVEL
             const body = document.createElement('div');
             body.className = 'candle-body';
-            body.style.height = `${(bodyHeight / range) * 100}px`;
+            
+            // Para o Martelo, garantir que o corpo seja visível mas pequeno
+            if (Math.abs(close - open) < 5) {
+                body.style.height = '15px'; // Altura mínima para ser visível
+            } else {
+                body.style.height = '25px';
+            }
+            
             body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-            body.style.minHeight = '10px';
+            body.style.minHeight = '15px'; // Garantir que seja visível
             candle.appendChild(body);
             
-            // Wick inferior
-            if (low < Math.min(open, close)) {
-                const lowerWick = document.createElement('div');
-                lowerWick.className = 'candle-wick';
-                lowerWick.style.height = `${((Math.min(open, close) - low) / range) * 150}px`;
-                lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                candle.appendChild(lowerWick);
-            }
+            // Wick inferior (sempre presente no Martelo)
+            const lowerWick = document.createElement('div');
+            lowerWick.className = 'candle-wick';
+            lowerWick.style.height = '60px'; // Sombra longa para o Martelo
+            lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
+            candle.appendChild(lowerWick);
             
             // Informação do candle
             const info = document.createElement('div');
@@ -542,7 +543,7 @@
             chartContainer.appendChild(candle);
         }
 
-        // Criar dois candles
+        // Criar dois candles - FUNÇÃO CORRIGIDA
         function createTwoCandles(opens, highs, lows, closes, descriptions) {
             for (let i = 0; i < 2; i++) {
                 const candle = document.createElement('div');
@@ -555,33 +556,36 @@
                 const description = descriptions[i];
                 
                 const isBullish = close > open;
-                const bodyHeight = Math.abs(close - open);
-                const maxPrice = Math.max(...opens, ...highs, ...lows, ...closes);
-                const minPrice = Math.min(...opens, ...highs, ...lows, ...closes);
-                const range = maxPrice - minPrice;
                 
                 // Wick superior
                 if (high > Math.max(open, close)) {
                     const upperWick = document.createElement('div');
                     upperWick.className = 'candle-wick';
-                    upperWick.style.height = `${((high - Math.max(open, close)) / range) * 120}px`;
+                    upperWick.style.height = '15px';
                     upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                     candle.appendChild(upperWick);
                 }
                 
-                // Corpo do candle
+                // Corpo do candle - MAIOR para Engolfo
                 const body = document.createElement('div');
                 body.className = 'candle-body';
-                body.style.height = `${(bodyHeight / range) * 80}px`;
+                
+                // Primeiro candle menor, segundo candle maior (para Engolfo)
+                if (i === 0) {
+                    body.style.height = '25px';
+                } else {
+                    body.style.height = '45px'; // Segundo candle maior
+                }
+                
                 body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                body.style.minHeight = '8px';
+                body.style.minHeight = '20px';
                 candle.appendChild(body);
                 
                 // Wick inferior
                 if (low < Math.min(open, close)) {
                     const lowerWick = document.createElement('div');
                     lowerWick.className = 'candle-wick';
-                    lowerWick.style.height = `${((Math.min(open, close) - low) / range) * 120}px`;
+                    lowerWick.style.height = '15px';
                     lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                     candle.appendChild(lowerWick);
                 }
@@ -609,16 +613,12 @@
                 const description = descriptions[i];
                 
                 const isBullish = close > open;
-                const bodyHeight = Math.abs(close - open);
-                const maxPrice = Math.max(...opens, ...highs, ...lows, ...closes);
-                const minPrice = Math.min(...opens, ...highs, ...lows, ...closes);
-                const range = maxPrice - minPrice;
                 
                 // Wick superior
                 if (high > Math.max(open, close)) {
                     const upperWick = document.createElement('div');
                     upperWick.className = 'candle-wick';
-                    upperWick.style.height = `${((high - Math.max(open, close)) / range) * 100}px`;
+                    upperWick.style.height = '12px';
                     upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                     candle.appendChild(upperWick);
                 }
@@ -626,16 +626,23 @@
                 // Corpo do candle
                 const body = document.createElement('div');
                 body.className = 'candle-body';
-                body.style.height = `${(bodyHeight / range) * 60}px`;
+                
+                // Primeiro e terceiro candles maiores, segundo menor
+                if (i === 1) {
+                    body.style.height = '10px'; // Doji ou candle pequeno
+                } else {
+                    body.style.height = '30px'; // Candles grandes
+                }
+                
                 body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                body.style.minHeight = '6px';
+                body.style.minHeight = '8px';
                 candle.appendChild(body);
                 
                 // Wick inferior
                 if (low < Math.min(open, close)) {
                     const lowerWick = document.createElement('div');
                     lowerWick.className = 'candle-wick';
-                    lowerWick.style.height = `${((Math.min(open, close) - low) / range) * 100}px`;
+                    lowerWick.style.height = '12px';
                     lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
                     candle.appendChild(lowerWick);
                 }
