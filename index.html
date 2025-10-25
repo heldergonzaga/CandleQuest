@@ -61,7 +61,6 @@
         
         .chart-container {
             width: 100%;
-            height: 250px;
             margin: 20px 0;
             background-color: #f9f9f9;
             border: 1px solid #ddd;
@@ -69,46 +68,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .chart {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
             padding: 20px;
-            gap: 40px;
         }
         
-        .candle {
-            width: 40px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-        }
-        
-        .candle-body {
-            width: 30px;
-            border-radius: 3px;
-            min-height: 5px;
-        }
-        
-        .candle-wick {
-            width: 3px;
-            background-color: #333;
-            min-height: 5px;
-        }
-        
-        .candle-info {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #666;
-            text-align: center;
+        .chart-image {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
         }
         
         .pattern-hint {
@@ -281,12 +247,6 @@
             margin: 10px 0;
         }
         
-        .next-timer {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 10px;
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -299,10 +259,6 @@
             
             h1 {
                 font-size: 1.8rem;
-            }
-            
-            .chart {
-                gap: 20px;
             }
         }
     </style>
@@ -327,7 +283,7 @@
             </div>
             
             <div class="chart-container">
-                <div class="chart" id="chart"></div>
+                <img id="chart-image" class="chart-image" src="" alt="Padrão de Candlestick">
             </div>
             
             <div id="feedback-message" class="hidden">
@@ -357,11 +313,12 @@
     </div>
 
     <script>
-        // Dados do quiz com descrições melhoradas
+        // Dados do quiz com URLs de imagens reais
         const quizData = [
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "hammer",
+                image: "https://i.imgur.com/3qLQ8bE.png",
                 options: ["Martelo (Hammer)", "Doji", "Engolfo de Alta", "Estrela Cadente"],
                 correctAnswer: 0,
                 hint: "Padrão de reversão de baixa: corpo pequeno no topo, sombra inferior longa (2-3x o corpo)",
@@ -370,6 +327,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "engulfing_bullish",
+                image: "https://i.imgur.com/5XwY9v2.png",
                 options: ["Martelo", "Doji", "Engolfo de Alta", "Engolfo de Baixa"],
                 correctAnswer: 2,
                 hint: "Padrão de dois candles: o segundo candle de alta engole completamente o corpo do primeiro candle de baixa",
@@ -378,6 +336,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "doji",
+                image: "https://i.imgur.com/8M9r3bQ.png",
                 options: ["Martelo", "Doji", "Estrela Cadente", "Harami de Alta"],
                 correctAnswer: 1,
                 hint: "Padrão de indecisão: abertura e fechamento no mesmo nível (corpo muito pequeno ou inexistente)",
@@ -386,6 +345,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "shooting_star",
+                image: "https://i.imgur.com/7Vw2c9L.png",
                 options: ["Martelo", "Doji", "Estrela Cadente", "Engolfo de Baixa"],
                 correctAnswer: 2,
                 hint: "Padrão de reversão de alta: corpo pequeno na base, sombra superior longa, aparece no topo de tendência",
@@ -394,6 +354,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "harami_bullish",
+                image: "https://i.imgur.com/4rQwY9v.png",
                 options: ["Harami de Alta", "Harami de Baixa", "Engolfo de Alta", "Doji"],
                 correctAnswer: 0,
                 hint: "Padrão de dois candles: candle pequeno completamente contido dentro do corpo do candle anterior grande",
@@ -402,6 +363,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "engulfing_bearish",
+                image: "https://i.imgur.com/3qLQ8bE.png",
                 options: ["Engolfo de Alta", "Engolfo de Baixa", "Martelo Invertido", "Estrela Cadente"],
                 correctAnswer: 1,
                 hint: "Padrão de dois candles: o segundo candle de baixa engole completamente o corpo do primeiro candle de alta",
@@ -410,6 +372,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "hanging_man",
+                image: "https://i.imgur.com/5XwY9v2.png",
                 options: ["Martelo", "Homem Enforcado", "Doji", "Estrela Cadente"],
                 correctAnswer: 1,
                 hint: "Mesma aparência do Martelo, mas aparece no TOPO de tendência de alta (reversão para baixa)",
@@ -418,6 +381,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "morning_star",
+                image: "https://i.imgur.com/8M9r3bQ.png",
                 options: ["Estrela da Manhã", "Estrela da Tarde", "Harami de Alta", "Engolfo de Alta"],
                 correctAnswer: 0,
                 hint: "Padrão de três candles: candle de baixa grande + candle pequeno (doji) + candle de alta grande",
@@ -426,6 +390,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "evening_star",
+                image: "https://i.imgur.com/7Vw2c9L.png",
                 options: ["Estrela da Manhã", "Estrela da Tarde", "Harami de Baixa", "Engolfo de Baixa"],
                 correctAnswer: 1,
                 hint: "Padrão de três candles: candle de alta grande + candle pequeno (doji) + candle de baixa grande",
@@ -434,6 +399,7 @@
             {
                 question: "Identifique o padrão de candle mostrado no gráfico:",
                 chart: "inverted_hammer",
+                image: "https://i.imgur.com/4rQwY9v.png",
                 options: ["Martelo", "Martelo Invertido", "Estrela Cadente", "Doji"],
                 correctAnswer: 1,
                 hint: "Padrão de reversão de baixa: corpo pequeno na base, sombra superior longa, aparece no FUNDO de tendência",
@@ -447,7 +413,7 @@
         const questionCounter = document.getElementById('question-counter');
         const questionText = document.getElementById('question-text');
         const patternHint = document.getElementById('pattern-hint');
-        const chartContainer = document.getElementById('chart');
+        const chartImage = document.getElementById('chart-image');
         const optionsContainer = document.getElementById('options');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
@@ -491,8 +457,9 @@
             // Atualizar dica do padrão
             patternHint.innerHTML = `<h3>💡 Dica:</h3><p>${question.hint}</p>`;
             
-            // Gerar gráfico
-            generateChart(question.chart);
+            // Carregar imagem do gráfico
+            chartImage.src = question.image;
+            chartImage.alt = `Padrão de Candlestick - ${question.options[question.correctAnswer]}`;
             
             // Gerar opções
             generateOptions(question.options, userAnswers[currentQuestion]);
@@ -504,221 +471,6 @@
                 nextBtn.textContent = 'Finalizar';
             } else {
                 nextBtn.textContent = 'Próxima';
-            }
-        }
-
-        // Gerar gráfico de candle
-        function generateChart(chartType) {
-            chartContainer.innerHTML = '';
-            
-            // Criar candles baseados no tipo de padrão
-            switch(chartType) {
-                case 'hammer':
-                    createSingleCandle(50, 52, 30, 51, "Corpo pequeno no topo<br>Sombra inferior longa");
-                    break;
-                case 'engulfing_bullish':
-                    createTwoCandles(
-                        [45, 52], [48, 55], [42, 50], [43, 54],
-                        ["1º: Candle de baixa", "2º: Candle de alta ENGOLINDO o anterior"]
-                    );
-                    break;
-                case 'doji':
-                    createSingleCandle(50, 52, 48, 50, "Abertura = Fechamento<br>Corpo muito pequeno");
-                    break;
-                case 'shooting_star':
-                    createSingleCandle(50, 65, 48, 49, "Corpo pequeno na base<br>Sombra superior longa");
-                    break;
-                case 'harami_bullish':
-                    createTwoCandles(
-                        [42, 44], [48, 45], [38, 43], [40, 44],
-                        ["1º: Candle grande de baixa", "2º: Candle pequeno DENTRO do anterior"]
-                    );
-                    break;
-                case 'engulfing_bearish':
-                    createTwoCandles(
-                        [48, 42], [52, 45], [46, 40], [50, 41],
-                        ["1º: Candle de alta", "2º: Candle de baixa ENGOLINDO o anterior"]
-                    );
-                    break;
-                case 'hanging_man':
-                    createSingleCandle(60, 62, 40, 59, "Corpo pequeno no topo<br>Sombra inferior longa<br>TOPO da tendência");
-                    break;
-                case 'morning_star':
-                    createThreeCandles(
-                        [42, 44, 48], [45, 45, 52], [38, 43, 46], [40, 44, 50],
-                        ["1º: Baixa forte", "2º: Indecisão (Doji)", "3º: Alta forte"]
-                    );
-                    break;
-                case 'evening_star':
-                    createThreeCandles(
-                        [48, 50, 44], [52, 51, 46], [46, 49, 42], [50, 50, 43],
-                        ["1º: Alta forte", "2º: Indecisão (Doji)", "3º: Baixa forte"]
-                    );
-                    break;
-                case 'inverted_hammer':
-                    createSingleCandle(50, 65, 48, 51, "Corpo pequeno na base<br>Sombra superior longa<br>FUNDO da tendência");
-                    break;
-            }
-        }
-
-        // Criar um candle único
-        function createSingleCandle(open, high, low, close, description) {
-            const candle = document.createElement('div');
-            candle.className = 'candle';
-            
-            const isBullish = close > open;
-            
-            // Wick superior (se houver)
-            if (high > Math.max(open, close)) {
-                const upperWick = document.createElement('div');
-                upperWick.className = 'candle-wick';
-                upperWick.style.height = '20px';
-                upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                candle.appendChild(upperWick);
-            }
-            
-            // Corpo do candle - SEMPRE VISÍVEL
-            const body = document.createElement('div');
-            body.className = 'candle-body';
-            
-            // Para o Martelo, garantir que o corpo seja visível mas pequeno
-            if (Math.abs(close - open) < 5) {
-                body.style.height = '15px'; // Altura mínima para ser visível
-            } else {
-                body.style.height = '25px';
-            }
-            
-            body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-            body.style.minHeight = '15px'; // Garantir que seja visível
-            candle.appendChild(body);
-            
-            // Wick inferior (sempre presente no Martelo)
-            const lowerWick = document.createElement('div');
-            lowerWick.className = 'candle-wick';
-            lowerWick.style.height = '60px'; // Sombra longa para o Martelo
-            lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-            candle.appendChild(lowerWick);
-            
-            // Informação do candle
-            const info = document.createElement('div');
-            info.className = 'candle-info';
-            info.innerHTML = description;
-            candle.appendChild(info);
-            
-            chartContainer.appendChild(candle);
-        }
-
-        // Criar dois candles
-        function createTwoCandles(opens, highs, lows, closes, descriptions) {
-            for (let i = 0; i < 2; i++) {
-                const candle = document.createElement('div');
-                candle.className = 'candle';
-                
-                const open = opens[i];
-                const high = highs[i];
-                const low = lows[i];
-                const close = closes[i];
-                const description = descriptions[i];
-                
-                const isBullish = close > open;
-                
-                // Wick superior
-                if (high > Math.max(open, close)) {
-                    const upperWick = document.createElement('div');
-                    upperWick.className = 'candle-wick';
-                    upperWick.style.height = '15px';
-                    upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                    candle.appendChild(upperWick);
-                }
-                
-                // Corpo do candle - MAIOR para Engolfo
-                const body = document.createElement('div');
-                body.className = 'candle-body';
-                
-                // Primeiro candle menor, segundo candle maior (para Engolfo)
-                if (i === 0) {
-                    body.style.height = '25px';
-                } else {
-                    body.style.height = '45px'; // Segundo candle maior
-                }
-                
-                body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                body.style.minHeight = '20px';
-                candle.appendChild(body);
-                
-                // Wick inferior
-                if (low < Math.min(open, close)) {
-                    const lowerWick = document.createElement('div');
-                    lowerWick.className = 'candle-wick';
-                    lowerWick.style.height = '15px';
-                    lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                    candle.appendChild(lowerWick);
-                }
-                
-                // Informação do candle
-                const info = document.createElement('div');
-                info.className = 'candle-info';
-                info.innerHTML = description;
-                candle.appendChild(info);
-                
-                chartContainer.appendChild(candle);
-            }
-        }
-
-        // Criar três candles
-        function createThreeCandles(opens, highs, lows, closes, descriptions) {
-            for (let i = 0; i < 3; i++) {
-                const candle = document.createElement('div');
-                candle.className = 'candle';
-                
-                const open = opens[i];
-                const high = highs[i];
-                const low = lows[i];
-                const close = closes[i];
-                const description = descriptions[i];
-                
-                const isBullish = close > open;
-                
-                // Wick superior
-                if (high > Math.max(open, close)) {
-                    const upperWick = document.createElement('div');
-                    upperWick.className = 'candle-wick';
-                    upperWick.style.height = '12px';
-                    upperWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                    candle.appendChild(upperWick);
-                }
-                
-                // Corpo do candle
-                const body = document.createElement('div');
-                body.className = 'candle-body';
-                
-                // Primeiro e terceiro candles maiores, segundo menor
-                if (i === 1) {
-                    body.style.height = '10px'; // Doji ou candle pequeno
-                } else {
-                    body.style.height = '30px'; // Candles grandes
-                }
-                
-                body.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                body.style.minHeight = '8px';
-                candle.appendChild(body);
-                
-                // Wick inferior
-                if (low < Math.min(open, close)) {
-                    const lowerWick = document.createElement('div');
-                    lowerWick.className = 'candle-wick';
-                    lowerWick.style.height = '12px';
-                    lowerWick.style.backgroundColor = isBullish ? '#2ecc71' : '#e74c3c';
-                    candle.appendChild(lowerWick);
-                }
-                
-                // Informação do candle
-                const info = document.createElement('div');
-                info.className = 'candle-info';
-                info.innerHTML = description;
-                candle.appendChild(info);
-                
-                chartContainer.appendChild(candle);
             }
         }
 
