@@ -163,6 +163,11 @@
             background-color: #fadbd8;
         }
         
+        .option.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .navigation {
             display: flex;
             justify-content: space-between;
@@ -246,6 +251,47 @@
             transition: width 0.3s;
         }
         
+        .feedback-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .feedback-correct {
+            background-color: #d5f5e3;
+            color: #27ae60;
+            border: 2px solid #2ecc71;
+        }
+        
+        .feedback-incorrect {
+            background-color: #fadbd8;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a6491;
+            margin: 10px 0;
+        }
+        
+        .next-timer {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         @media (max-width: 600px) {
             .options {
                 grid-template-columns: 1fr;
@@ -284,8 +330,16 @@
                 <div class="chart" id="chart"></div>
             </div>
             
+            <div id="feedback-message" class="hidden">
+                <!-- Mensagem de feedback será inserida via JavaScript -->
+            </div>
+            
             <div class="options" id="options">
                 <!-- As opções serão inseridas via JavaScript -->
+            </div>
+            
+            <div class="timer hidden" id="timer">
+                Próxima pergunta em: <span id="countdown">3</span> segundos
             </div>
             
             <div class="navigation">
@@ -401,11 +455,16 @@
         const finalScore = document.getElementById('final-score');
         const feedback = document.getElementById('feedback');
         const progressBar = document.getElementById('progress');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const timer = document.getElementById('timer');
+        const countdown = document.getElementById('countdown');
 
         // Estado do quiz
         let currentQuestion = 0;
         let userAnswers = new Array(quizData.length).fill(null);
         let score = 0;
+        let timerInterval = null;
+        let answerSubmitted = false;
 
         // Inicializar o quiz
         function initQuiz() {
@@ -416,6 +475,12 @@
         // Mostrar pergunta atual
         function showQuestion() {
             const question = quizData[currentQuestion];
+            
+            // Resetar estado
+            answerSubmitted = false;
+            feedbackMessage.classList.add('hidden');
+            timer.classList.add('hidden');
+            nextBtn.disabled = true;
             
             // Atualizar contador
             questionCounter.textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length}`;
@@ -442,7 +507,7 @@
             }
         }
 
-        // Gerar gráfico de candle - VERSÃO CORRIGIDA
+        // Gerar gráfico de candle
         function generateChart(chartType) {
             chartContainer.innerHTML = '';
             
@@ -496,7 +561,7 @@
             }
         }
 
-        // Criar um candle único - FUNÇÃO CORRIGIDA
+        // Criar um candle único
         function createSingleCandle(open, high, low, close, description) {
             const candle = document.createElement('div');
             candle.className = 'candle';
@@ -543,7 +608,7 @@
             chartContainer.appendChild(candle);
         }
 
-        // Criar dois candles - FUNÇÃO CORRIGIDA
+        // Criar dois candles
         function createTwoCandles(opens, highs, lows, closes, descriptions) {
             for (let i = 0; i < 2; i++) {
                 const candle = document.createElement('div');
@@ -678,6 +743,8 @@
 
         // Selecionar uma opção
         function selectOption(index) {
+            if (answerSubmitted) return; // Não permitir mudar resposta após enviar
+            
             userAnswers[currentQuestion] = index;
             
             // Remover seleção anterior
@@ -686,6 +753,65 @@
             
             // Adicionar seleção atual
             options[index].classList.add('selected');
+            
+            // Mostrar feedback imediato
+            showFeedback(index);
+        }
+
+        // Mostrar feedback da resposta
+        function showFeedback(selectedIndex) {
+            answerSubmitted = true;
+            const correctIndex = quizData[currentQuestion].correctAnswer;
+            const isCorrect = selectedIndex === correctIndex;
+            
+            // Destacar opções corretas e incorretas
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+                option.classList.add('disabled');
+            });
+            
+            // Mostrar mensagem de feedback
+            feedbackMessage.innerHTML = '';
+            feedbackMessage.className = 'feedback-message';
+            
+            if (isCorrect) {
+                feedbackMessage.classList.add('feedback-correct');
+                feedbackMessage.innerHTML = '✅ <strong>Correto!</strong> Parabéns, você acertou!';
+            } else {
+                feedbackMessage.classList.add('feedback-incorrect');
+                feedbackMessage.innerHTML = `❌ <strong>Incorreto!</strong> A resposta correta é: <strong>${quizData[currentQuestion].options[correctIndex]}</strong>`;
+            }
+            
+            feedbackMessage.classList.remove('hidden');
+            
+            // Ativar temporizador para próxima pergunta
+            startTimer();
+        }
+
+        // Iniciar temporizador para próxima pergunta
+        function startTimer() {
+            let timeLeft = 3;
+            countdown.textContent = timeLeft;
+            timer.classList.remove('hidden');
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                countdown.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    nextQuestion();
+                }
+            }, 1000);
         }
 
         // Atualizar barra de progresso
